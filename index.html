@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram GC List</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+    <style>
+        /* Basic Styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background-color: #3b5998;
+            color: #fff;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        .menu {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .menu-dropdown {
+            display: none;
+            position: absolute;
+            top: 20px;
+            right: 0;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        .menu:hover .menu-dropdown {
+            display: block;
+        }
+
+        .menu-dropdown a {
+            padding: 10px;
+            display: block;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .menu-dropdown a:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* About Modal Styles */
+        #about-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 80%;
+            text-align: center;
+        }
+
+        .close-btn {
+            background-color: #3b5998;
+            color: #fff;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .close-btn:hover {
+            background-color: #2e4677;
+        }
+
+        /* GC List Section */
+        main {
+            padding: 20px;
+        }
+
+        #search-bar {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .gc-item {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .gc-item img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .gc-item h3 {
+            margin: 0;
+        }
+
+        .gc-item a {
+            color: #3b5998;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Instagram GC List</h1>
+        <div class="menu">
+            <span>...</span>
+            <div class="menu-dropdown">
+                <a href="add_gc.html">Add New GC</a>
+                <a href="#" id="about-link">About</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Search bar -->
+        <input type="text" id="search-bar" placeholder="Search GC by name...">
+
+        <div id="gc-list">
+            <!-- The GC list will be dynamically loaded here -->
+        </div>
+    </main>
+
+    <!-- About Modal -->
+    <div id="about-modal" class="modal">
+        <div class="modal-content">
+            <h2>About This Website</h2>
+            <p>This website gives a list of Instagram group chats (GCs) where you can join and connect with others.</p>
+            <button class="close-btn" id="close-modal">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Function to load saved GCs from localStorage
+        function loadGCs() {
+            const savedGCs = JSON.parse(localStorage.getItem("gcList")) || [];
+            return savedGCs;
+        }
+
+        // Function to display the GCs
+        function displayGCs(filteredData) {
+            const gcList = document.getElementById("gc-list");
+            gcList.innerHTML = ''; // Clear the list before adding new items
+
+            filteredData.forEach(gc => {
+                const gcItem = document.createElement('div');
+                gcItem.classList.add('gc-item');
+
+                gcItem.innerHTML = `
+                    <img src="${gc.dp}" alt="GC DP">
+                    <div>
+                        <h3>${gc.name}</h3>
+                        <p>Admin: ${gc.admin}</p>
+                        <a href="${gc.link}" target="_blank">Join GC</a>
+                    </div>
+                `;
+                gcList.appendChild(gcItem);
+            });
+        }
+
+        // Display the saved GCs when the page loads
+        displayGCs(loadGCs());
+
+        // Search functionality
+        const searchBar = document.getElementById("search-bar");
+
+        searchBar.addEventListener("input", function() {
+            const searchText = searchBar.value.toLowerCase();
+            const filteredGCs = loadGCs().filter(gc => gc.name.toLowerCase().includes(searchText));
+            displayGCs(filteredGCs);
+        });
+
+        // Modal logic
+        const aboutLink = document.getElementById("about-link");
+        const modal = document.getElementById("about-modal");
+        const closeBtn = document.getElementById("close-modal");
+
+        // Show modal when the "About" link is clicked
+        aboutLink.addEventListener("click", function(e) {
+            e.preventDefault();
+            modal.style.display = "flex";
+        });
+
+        // Close the modal when the "Close" button is clicked
+        closeBtn.addEventListener("click", function() {
+            modal.style.display = "none";
+        });
+
+        // Close the modal if user clicks outside of the modal content
+        window.addEventListener("click", function(e) {
+            if (e.target === modal) {
+                modal.style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>
